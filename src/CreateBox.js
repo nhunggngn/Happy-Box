@@ -4,11 +4,12 @@ import web3 from './web3';
 import axios from 'axios';
 import QRCode from 'qrcode.react';
 import Modal from 'react-modal';
-import './GiftBox.css'; 
+import './GiftBox.css';
 
 const CreateBox = () => {
   const [receiver, setReceiver] = useState('');
   const [message, setMessage] = useState('');
+  const [amount, setAmount] = useState('');
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [ipfsHash, setIpfsHash] = useState('');
@@ -17,6 +18,7 @@ const CreateBox = () => {
   const [currentAccount, setCurrentAccount] = useState('');
   const [boxLink, setBoxLink] = useState('');
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadBoxData = async () => {
@@ -37,10 +39,9 @@ const CreateBox = () => {
       }
       const allBoxes = await Promise.all(boxPromises);
 
-      // Filter boxes created by the current account
       const filteredBoxes = allBoxes.map((box, index) => ({
         ...box,
-        id: index + 1 // hiển thị đúng Box ID từ hợp đồng
+        id: index + 1
       })).filter(box => box.sender.toLowerCase() === currentAccount.toLowerCase());
       setBoxes(filteredBoxes);
     };
@@ -65,6 +66,13 @@ const CreateBox = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setError('');
+
+    if (!receiver || !message || !amount || !file) {
+      setError('Please fill in all fields and upload a file.');
+      return;
+    }
+
     try {
       const accounts = await web3.eth.getAccounts();
       if (accounts.length === 0) {
@@ -74,15 +82,12 @@ const CreateBox = () => {
       const currentAccount = accounts[0];
       setCurrentAccount(currentAccount);
 
-      // Gửi file lên IPFS
       const ipfsResult = await uploadToIPFS(file, fileName);
       const ipfsHash = ipfsResult.data.IpfsHash;
       setIpfsHash(ipfsHash);
 
-      // Tạo gift box
-      await giftBox.methods.createBox(receiver, message, `ipfs://${ipfsHash}`).send({ from: currentAccount });
+      await giftBox.methods.createBox(receiver, message, `ipfs://${ipfsHash}`).send({ from: currentAccount, value: web3.utils.toWei(amount, 'ether') });
 
-      // Cập nhật lại danh sách hộp quà và tổng số hộp quà
       const totalBoxes = await giftBox.methods.totalBoxes().call();
       setTotalBoxes(totalBoxes);
 
@@ -92,10 +97,9 @@ const CreateBox = () => {
       }
       const allBoxes = await Promise.all(boxPromises);
 
-      // Filter boxes created by the current account
       const filteredBoxes = allBoxes.map((box, index) => ({
         ...box,
-        id: index + 1 // hiển thị đúng Box ID từ hợp đồng
+        id: index + 1
       })).filter(box => box.sender.toLowerCase() === currentAccount.toLowerCase());
       setBoxes(filteredBoxes);
 
@@ -106,6 +110,7 @@ const CreateBox = () => {
 
     } catch (error) {
       console.error("Error creating box: ", error);
+      setError("Error creating box. Please try again.");
     }
   };
 
@@ -150,6 +155,18 @@ const CreateBox = () => {
               </div>
             </div>
             <div className="field">
+              <label className="label">ETH Amount</label>
+              <div className="control">
+                <input
+                  className="input"
+                  type="text"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter amount in ETH"
+                />
+              </div>
+            </div>
+            <div className="field">
               <label className="label">Upload File</label>
               <div className="control">
                 <input
@@ -159,6 +176,7 @@ const CreateBox = () => {
                 />
               </div>
             </div>
+            {error && <p className="error">{error}</p>}
             <div className="control">
               <button className="button is-primary" type="submit">Create Box</button>
             </div>
@@ -183,6 +201,7 @@ const CreateBox = () => {
                   <div className="box-content"><strong>Receiver:</strong> {box.receiver}</div>
                   <div className="box-content"><strong>Message:</strong> {box.message}</div>
                   <div className="box-content"><strong>Asset:</strong> {box.assetUrl}</div>
+                  <div className="box-content"><strong>ETH Amount:</strong> {web3.utils.fromWei(box.amount, 'ether')} ETH</div>
                   <div className="box-content"><strong>Claimed:</strong> {box.claimed ? 'Yes' : 'No'}</div>
                 </div>
               ))}
@@ -198,6 +217,10 @@ const uploadToIPFS = async (file, fileName) => {
   const pinataApiKey = process.env.REACT_APP_PINATA_API_KEY;
   const pinataSecretApiKey = process.env.REACT_APP_PINATA_SECRET_API_KEY;
 
+  if (!pinataApiKey || !pinataSecretApiKey) {
+    throw new Error("Pinata API keys are not defined");
+  }
+
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
   const data = new FormData();
   data.append('file', new Blob([file]), fileName);
@@ -212,16 +235,20 @@ const uploadToIPFS = async (file, fileName) => {
   });
   data.append('pinataOptions', options);
 
-  const result = await axios.post(url, data, {
-    maxContentLength: 'Infinity',
-    headers: {
-      'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-      'pinata_api_key': pinataApiKey,
-      'pinata_secret_api_key': pinataSecretApiKey
-    }
-  });
-
-  return result;
+  try {
+    const result = await axios.post(url, data, {
+      maxContentLength: 'Infinity',
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        'pinata_api_key': pinataApiKey,
+        'pinata_secret_api_key': pinataSecretApiKey
+      }
+    });
+    return result;
+  } catch (error) {
+    console.error("Error uploading to IPFS: ", error);
+    throw error;
+  }
 };
 
 export default CreateBox;

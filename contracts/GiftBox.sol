@@ -7,6 +7,7 @@ contract GiftBox {
         address receiver;
         string message; 
         string assetUrl; // Thay đổi từ uint256 thành string để lưu trữ URL của tài sản
+        uint256 amount; // Số lượng ETH đi kèm với hộp quà
         bool claimed;
     }
 
@@ -14,16 +15,18 @@ contract GiftBox {
     mapping(address => uint256) public balances;
     uint256 public totalBoxes;
 
-    event BoxCreated(uint256 indexed boxId, address indexed sender, address indexed receiver, string message, string assetUrl);
-    event BoxClaimed(uint256 indexed boxId, address indexed receiver);
+    event BoxCreated(uint256 indexed boxId, address indexed sender, address indexed receiver, string message, string assetUrl, uint256 amount);
+    event BoxClaimed(uint256 indexed boxId, address indexed receiver, uint256 amount);
 
     function createBox(address _receiver, string memory _message, string memory _assetUrl) public payable {
         require(_receiver != address(0), "Invalid receiver address");
         require(bytes(_assetUrl).length > 0, "Asset URL must not be empty");
+        require(msg.value <= balances[msg.sender], "Insufficient balance to send");
 
         totalBoxes++;
-        boxes[totalBoxes] = Box(msg.sender, _receiver, _message, _assetUrl, false);
-        emit BoxCreated(totalBoxes, msg.sender, _receiver, _message, _assetUrl);
+        uint256 amount = msg.value; // Số lượng ETH đi kèm với hộp quà
+        boxes[totalBoxes] = Box(msg.sender, _receiver, _message, _assetUrl, amount, false);
+        emit BoxCreated(totalBoxes, msg.sender, _receiver, _message, _assetUrl, amount);
     }
 
     function claimBox(uint256 _boxId) public {
@@ -31,8 +34,13 @@ contract GiftBox {
         require(boxes[_boxId].receiver == msg.sender, "You are not the receiver of this box");
         require(!boxes[_boxId].claimed, "This box has already been claimed");
 
+        uint256 amount = boxes[_boxId].amount;
         boxes[_boxId].claimed = true;
-        emit BoxClaimed(_boxId, msg.sender);
+        emit BoxClaimed(_boxId, msg.sender, amount);
+
+        if (amount > 0) {
+            payable(msg.sender).transfer(amount);
+        }
     }
 
     function deposit() public payable {

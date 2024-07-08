@@ -1,5 +1,9 @@
 const path = require('path');
+const webpack = require('webpack');
+const dotenv = require('dotenv');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+dotenv.config();
 
 module.exports = {
   entry: './src/index.js', // File entry chính của bạn
@@ -28,6 +32,9 @@ module.exports = {
         use: [
           {
             loader: 'file-loader',
+            options: {
+              name: '[path][name].[ext]',
+            },
           },
         ],
       },
@@ -37,12 +44,19 @@ module.exports = {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.REACT_APP_PINATA_API_KEY': JSON.stringify(process.env.REACT_APP_PINATA_API_KEY),
+      'process.env.REACT_APP_PINATA_SECRET_API_KEY': JSON.stringify(process.env.REACT_APP_PINATA_SECRET_API_KEY),
+    }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
+      filename: 'index.html', // File output HTML
     }),
   ],
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
     compress: true,
     port: 9000,
     historyApiFallback: true,

@@ -10,6 +10,7 @@ const ClaimBox = () => {
   const [boxId, setBoxId] = useState('');
   const [assetUrl, setAssetUrl] = useState('');
   const [message, setMessage] = useState('');
+  const [amount, setAmount] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [totalBoxCount, setTotalBoxCount] = useState(0);
@@ -46,7 +47,8 @@ const ClaimBox = () => {
               claimedBoxes.push({
                 id: i,
                 message: box.message,
-                assetUrl
+                assetUrl,
+                amount: web3.utils.fromWei(box.amount, 'ether')
               });
             } else {
               unclaimedCount++;
@@ -70,41 +72,37 @@ const ClaimBox = () => {
       const accounts = await web3.eth.getAccounts();
       const box = await giftBox.methods.boxes(boxId).call();
 
-      // Check if the caller is the receiver
       if (box.receiver.toLowerCase() !== accounts[0].toLowerCase()) {
         setErrorMessage('You are not the receiver of this box');
         return;
       }
 
-      // Check if the box has already been claimed
       if (box.claimed) {
         setErrorMessage('This box has already been claimed');
         return;
       }
 
-      // Claim the box
       await giftBox.methods.claimBox(boxId).send({ from: accounts[0] });
 
-      // Get the asset URL
       const assetHash = box.assetUrl.replace('ipfs://', '');
       const assetUrl = `https://gateway.pinata.cloud/ipfs/${assetHash}`;
       setAssetUrl(assetUrl);
       setMessage(box.message);
+      setAmount(web3.utils.fromWei(box.amount, 'ether'));
       setErrorMessage('');
       setSuccessMessage('Box claimed successfully!');
       setClaimedBoxCount(claimedBoxCount + 1);
       setUnclaimedBoxCount(unclaimedBoxCount - 1);
 
-      // Update the claimed boxes
       const newClaimedBox = {
         id: boxId,
         message: box.message,
-        assetUrl
+        assetUrl,
+        amount: web3.utils.fromWei(box.amount, 'ether')
       };
       const updatedClaimedBoxes = [...claimedBoxes, newClaimedBox];
       setClaimedBoxes(updatedClaimedBoxes);
 
-      // Open modal to show the claimed box
       setModalIsOpen(true);
     } catch (error) {
       console.error('Error claiming box:', error);
@@ -156,6 +154,7 @@ const ClaimBox = () => {
             <div className="box-header">Box ID: {box.id}</div>
             <img className="gift-image" src={box.assetUrl} alt="Gift Asset" />
             <p className="box-content"><strong>Message:</strong> {box.message}</p>
+            <p className="box-content"><strong>ETH Amount:</strong> {box.amount} ETH</p>
           </div>
         ))}
       </div>
@@ -173,6 +172,7 @@ const ClaimBox = () => {
           <h3 className="box-header">Box ID: {boxId}</h3>
           <img className="gift-image" src={assetUrl} alt="Gift Asset" />
           <p className="box-content"><strong>Message:</strong> {message}</p>
+          <p className="box-content"><strong>ETH Amount:</strong> {amount} ETH</p>
         </div>
       </Modal>
     </div>

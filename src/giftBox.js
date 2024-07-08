@@ -1,6 +1,6 @@
 import web3 from './web3';
 
-const address = '0x9DBaf435cAC9aE80069eC867F1EF0Fb1a71ca248';
+const address = '0xb2932C9122C40348482DE678F13A33e411A7b00E';
 
 const abi = [
   {
@@ -81,6 +81,11 @@ const abi = [
         "internalType": "string",
         "name": "assetUrl",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "internalType": "bool",
