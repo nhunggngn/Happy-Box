@@ -86,7 +86,9 @@ const CreateBox = () => {
       const ipfsHash = ipfsResult.data.IpfsHash;
       setIpfsHash(ipfsHash);
 
-      await giftBox.methods.createBox(receiver, message, `ipfs://${ipfsHash}`).send({ from: currentAccount, value: web3.utils.toWei(amount, 'ether') });
+      const amountInWei = web3.utils.toWei(amount, 'ether'); // Chuyển đổi từ ETH sang Wei
+
+      await giftBox.methods.createBox(receiver, message, `ipfs://${ipfsHash}`).send({ from: currentAccount, value: amountInWei });
 
       const totalBoxes = await giftBox.methods.totalBoxes().call();
       setTotalBoxes(totalBoxes);
