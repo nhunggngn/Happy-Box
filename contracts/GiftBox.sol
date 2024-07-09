@@ -23,7 +23,7 @@ contract GiftBox {
         require(msg.value > 0 && msg.value <= address(msg.sender).balance, "Insufficient balance to send");
 
         totalBoxes++;
-        uint256 amount = msg.value; // Số lượng SepoliaETH đi kèm với hộp quà
+        uint256 amount = msg.value; 
         boxes[totalBoxes] = Box(msg.sender, _receiver, _message, _assetUrl, amount, false);
         emit BoxCreated(totalBoxes, msg.sender, _receiver, _message, _assetUrl, amount);
     }
