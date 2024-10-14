@@ -4,6 +4,7 @@ import CreateBox from './CreateBox';
 import ClaimBox from './ClaimBox';
 import web3 from './web3';
 import './HomePage.css';
+import './LandingPage';
 
 const App = () => {
   const [account, setAccount] = useState('');
@@ -26,6 +27,7 @@ const App = () => {
       }
       const account = accounts[0];
       setAccount(account);
+
       const balanceWei = await web3.eth.getBalance(account);
       const balanceEth = web3.utils.fromWei(balanceWei, 'ether');
       setBalance(balanceEth);
@@ -60,9 +62,10 @@ const App = () => {
         <section className="section">
           <div className="container">
             <Routes>
-              <Route exact path="/" element={<HomePage />} />
+              <Route exact path="/" element={<LandingPage />} />  {/* Landing Page làm trang mặc định */}
               <Route path="/create" element={<CreateBox />} />
               <Route path="/claim" element={<ClaimBox />} />
+              <Route path="/home" element={<HomePage />} /> {/* HomePage sau LandingPage */}
             </Routes>
           </div>
         </section>
@@ -71,23 +74,24 @@ const App = () => {
   );
 };
 
-const HomePage = () => (
-  <div className="homepage-container">
-    <div className="hero-section">
-      <img 
-        src="https://c0.wallpaperflare.com/preview/410/13/290/gift-box-christmas-present.jpg" 
-        alt="Gift Box" 
-        className="hero-image"
-      />
-      <div className="hero-text">
-        <h1 className="title">Welcome to Gift Box DApp!</h1>
-        <p className="subtitle">Easily create and claim gift boxes on the blockchain!</p>
-        <div className="buttons">
-          <Link to="/create" className="button is-primary" id='button-home'>Create a Gift Box</Link>
-          <Link to="/claim" className="button is-secondary" id='button-home'>Claim a Gift Box</Link>
-        </div>
-      </div>
+// Component LandingPage: Trang mặc định khi vào trang web
+const LandingPage = () => (
+  <div className="landing-page">
+    <h1 className="landing-title">Welcome to Happy Box DApp!</h1>
+    <p className="landing-subtitle">Easily send and receive gift boxes on the blockchain.</p>
+    <div className="landing-buttons">
+      <Link to="/create" className="button is-primary">Create a Gift Box</Link>
+      <Link to="/claim" className="button is-secondary">Claim a Gift Box</Link>
     </div>
+  </div>
+);
+
+// Trang HomePage: Được điều hướng sau Landing Page
+const HomePage = () => (
+  <div>
+    <h1 className="title">Welcome to Gift Box DApp!</h1>
+    <Link to="/create" className="button is-primary" id='button-home'>Create a Gift Box</Link>
+    <Link to="/claim" className="button is-primary" id='button-home'>Claim a Gift Box</Link>
   </div>
 );
 

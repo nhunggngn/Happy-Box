@@ -72,22 +72,10 @@ const App = () => {
 };
 
 const HomePage = () => (
-  <div className="homepage-container">
-    <div className="hero-section">
-      <img 
-        src="https://c0.wallpaperflare.com/preview/410/13/290/gift-box-christmas-present.jpg" 
-        alt="Gift Box" 
-        className="hero-image"
-      />
-      <div className="hero-text">
-        <h1 className="title">Welcome to Gift Box DApp!</h1>
-        <p className="subtitle">Easily create and claim gift boxes on the blockchain!</p>
-        <div className="buttons">
-          <Link to="/create" className="button is-primary" id='button-home'>Create a Gift Box</Link>
-          <Link to="/claim" className="button is-secondary" id='button-home'>Claim a Gift Box</Link>
-        </div>
-      </div>
-    </div>
+  <div>
+    <h1 className="title">Welcome to Gift Box DApp!</h1>
+    <Link to="/create" className="button is-primary" id='button-home'>Create a Gift Box</Link>
+    <Link to="/claim" className="button is-primary" id='button-home'>Claim a Gift Box</Link>
   </div>
 );
 

@@ -1,7 +1,4 @@
 /* Định dạng cho trang HomePage */
-.section {
-    padding: 0;
-}
 .homepage-container {
     display: flex;
     justify-content: center;
@@ -12,18 +9,16 @@
   
   .hero-section {
     position: relative;
-    text-align: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100vw; /* Chiều rộng full viewport */
+    height: 80vh; /* Chiều cao tùy chỉnh theo yêu cầu */
+    overflow: hidden; /* Đảm bảo ảnh không vượt ra ngoài khung */
   }
   
   .hero-image {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    object-fit: cover;
-    opacity: 0.9;
+    width: 100%; /* Chiều rộng full */
+    height: 100%; /* Chiều cao full */
+    object-fit: cover; /* Đảm bảo ảnh giữ đúng tỷ lệ và bao phủ toàn bộ */
+    border-radius: 0; /* Đặt thành 0 để không có góc tròn */
   }
   
   .hero-text {
@@ -33,6 +28,7 @@
     transform: translate(-50%, -50%);
     color: white;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    text-align: center;
   }
   
   .title {

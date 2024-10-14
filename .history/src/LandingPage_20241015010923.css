@@ -1,0 +1,35 @@
+.landing-page {
+    text-align: center;
+    padding: 50px;
+    background: #f0f8ff;
+  }
+  
+  .landing-header {
+    margin-bottom: 50px;
+  }
+  
+  .landing-buttons {
+    margin-top: 20px;
+  }
+  
+  .features {
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 8px;
+  }
+  
+  .features ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .features li {
+    padding: 10px 0;
+    font-size: 18px;
+  }
+  
+  .landing-footer {
+    margin-top: 50px;
+    color: #888;
+  }
+  

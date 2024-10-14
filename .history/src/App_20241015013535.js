@@ -75,7 +75,7 @@ const HomePage = () => (
   <div className="homepage-container">
     <div className="hero-section">
       <img 
-        src="https://c0.wallpaperflare.com/preview/410/13/290/gift-box-christmas-present.jpg" 
+        src="https://img.pikbest.com/ai/illus_our/20230427/7254b18d22df7400fac204879f9bb01b.jpg!w700wp" 
         alt="Gift Box" 
         className="hero-image"
       />
